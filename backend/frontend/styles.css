@@ -95,3 +95,42 @@ main {
     cursor: pointer;
     margin-bottom: 1rem;
 }
+/* Ocultar todas las secciones por defecto */
+section:not(.active) {
+    display: none;
+}
+
+/* Mostrar solo la sección activa */
+section.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+/* Detalle de artista */
+.detail-image {
+    width: 300px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 15px;
+}
+
+.artist-info {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.back-button {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 2rem;
+}

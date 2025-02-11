@@ -16,6 +16,117 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadArtists();
 });
+// Manejar la navegación entre secciones
+function navigateToSection(sectionId) {
+    // Ocultar todas las secciones
+    document.querySelectorAll('section').forEach(section => {
+        section.classList.remove('active');
+    });
+
+    // Mostrar la sección seleccionada
+    const targetSection = document.getElementById(sectionId);
+    if (targetSection) {
+        targetSection.classList.add('active');
+        window.scrollTo(0, 0); // Volver al inicio de la página
+    }
+}
+
+// Event listeners para los enlaces del menú
+document.querySelectorAll('.nav-links a').forEach(link => {
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const sectionId = link.dataset.section;
+        navigateToSection(sectionId);
+        loadSectionContent(sectionId); // Cargar datos dinámicos
+    });
+});
+
+// Cargar contenido según la sección
+function loadSectionContent(sectionId) {
+    switch(sectionId) {
+        case 'artists':
+            loadArtistasDestacados();
+            break;
+        case 'albums':
+            loadAlbumesPopulares();
+            break;
+        case 'songs':
+            loadCancionesTrending();
+            break;
+        case 'about':
+            // No necesita carga dinámica
+            break;
+    }
+}
+
+async function loadArtistasDestacados() {
+    try {
+        const response = await fetch('/api/artists?sort=popularity');
+        const artists = await response.json();
+        renderArtistas(artists);
+    } catch (error) {
+        console.error('Error cargando artistas:', error);
+    }
+}
+
+function renderArtistas(artists) {
+    const container = document.getElementById('artists-container');
+    container.innerHTML = ''; // Limpiar contenido previo
+
+    artists.forEach(artist => {
+        const card = `
+            <div class="artist-card">
+                <img src="${artist.image}" alt="${artist.name}">
+                <h3>${artist.name}</h3>
+                <p>${artist.followers} seguidores</p>
+                <button onclick="showArtistDetail('${artist._id}')">Ver detalle</button>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', card);
+    });
+}
+async function showArtistDetail(artistId) {
+    try {
+        const response = await fetch(`/api/artists/${artistId}`);
+        const artist = await response.json();
+
+        // Ocultar main y mostrar detalle
+        document.querySelector('main').style.display = 'none';
+        document.getElementById('artist-detail').innerHTML = `
+            <div class="detail-header">
+                <button class="back-button" onclick="goBack()">← Volver</button>
+                <h2>${artist.name}</h2>
+            </div>
+            <div class="artist-info">
+                <img src="${artist.image}" class="detail-image">
+                <div class="stats">
+                    <p>Géneros: ${artist.genres.join(', ')}</p>
+                    <p>Popularidad: ${artist.popularity}/100</p>
+                </div>
+            </div>
+            <h3>Álbumes</h3>
+            <div id="artist-albums"></div>
+        `;
+
+        document.getElementById('artist-detail').classList.add('active');
+        loadAlbumesDelArtista(artistId); // Cargar álbumes
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+function goBack() {
+    document.querySelector('main').style.display = 'block';
+    document.querySelector('.detail-page').classList.remove('active');
+}
+
+
+
+
+
+
+
+
 
 async function search(query, filter) {
     let url = `http://localhost:3000/api/search?query=${query}&filter=${filter}`;
