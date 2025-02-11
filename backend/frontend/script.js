@@ -12,13 +12,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
     // Agregar búsqueda al presionar Enter en el campo de búsqueda
-        document.getElementById('search-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const query = e.target.value;
-                const filter = document.getElementById('filterType').value;
-                search(query, filter);
-            }
-        });
+    document.getElementById('search-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const query = e.target.value;
+            const filter = document.getElementById('filterType').value;
+            search(query, filter);
+        }
+    });
 
     loadArtists(); // Cargar artistas al inicio
 });
@@ -29,6 +29,7 @@ function handleNavClick(e) {
     showSection(sectionId);
     setActiveLink(e.target);
 }
+
 // Manejar la navegación entre secciones
 function navigateToSection(sectionId) {
     // Ocultar todas las secciones
@@ -98,6 +99,7 @@ function renderArtistas(artists) {
         container.insertAdjacentHTML('beforeend', card);
     });
 }
+
 async function showArtistDetail(artistId) {
     try {
         const response = await fetch(`/api/artists/${artistId}`);
@@ -132,14 +134,6 @@ function goBack() {
     document.querySelector('main').style.display = 'block';
     document.querySelector('.detail-page').classList.remove('active');
 }
-
-
-
-
-
-
-
-
 
 async function search(query, filter) {
     let url = `http://localhost:3000/api/search?query=${query}&filter=${filter}`;
@@ -301,9 +295,6 @@ async function showDetail(type, id) {
     detailSection.classList.add('active');
 }
 
-
-
-
 //Logica de BUSCAR
 
 async function search(query, filter) {
@@ -447,6 +438,7 @@ function displayArtistDetails({ artist, albums }) {
         link.addEventListener('click', async (e) => {
             e.preventDefault();
             const albumId = e.target.closest('.album-link').dataset.albumId;
+            const artistId = document.querySelector('.artist-name').dataset.artistId;
             await loadAlbumSongs(artistId, albumId);
         });
     });
