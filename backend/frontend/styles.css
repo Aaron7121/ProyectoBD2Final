@@ -134,3 +134,36 @@ section.active {
     cursor: pointer;
     margin-bottom: 2rem;
 }
+
+.artists-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+}
+
+.artist-card {
+    text-align: center;
+    padding: 10px;
+    border-radius: 8px;
+    transition: transform 0.2s;
+}
+
+.artist-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.artist-card p {
+    margin-top: 8px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.artist-card:hover {
+    transform: scale(1.05);
+}

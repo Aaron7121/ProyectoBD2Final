@@ -20,18 +20,17 @@
         <div class="search-bar">
             <input type="text" id="search-input" placeholder="Buscar...">
             <select id="filterType">
-                <option value="all">Todo</option>
+                <option>Seleccione una opcion</option>
                 <option value="artists">Artistas</option>
                 <option value="albums">Álbumes</option>
                 <option value="songs">Canciones</option>
+                <option value="genres">Generos</option>
             </select>
-            <select id="filterGenre">
-                <option value="all">Todos los géneros</option>
-                <!-- Opciones se llenarán dinámicamente -->
-            </select>
+            <button id="search-button">Buscar</button>
         </div>
     </nav>
 </header>
+
 
 <main>
     <section id="home" class="active">
@@ -73,10 +72,12 @@
             <h3>Contacto:</h3>
             <p>📧 contacto@aefsongs.com</p>
         </div>
+
     </section>
     <section id="search-results">
         <h2>Resultados de Búsqueda</h2>
         <div class="grid-container" id="search-results-container"></div>
+
     </section>
     <!-- Secciones de detalle -->
     <section id="artist-detail" class="detail-page"></section>

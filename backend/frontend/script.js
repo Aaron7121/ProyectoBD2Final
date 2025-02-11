@@ -1,21 +1,34 @@
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.nav-links a').forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const sectionId = link.getAttribute('data-section');
-            showSection(sectionId);
-            setActiveLink(link);
-        });
+    const navLinks = document.querySelectorAll('.nav-links a');
+    navLinks.forEach(link => {
+        link.removeEventListener('click', handleNavClick); // Evitar duplicados
+        link.addEventListener('click', handleNavClick);
     });
 
     document.getElementById('search-button').addEventListener('click', () => {
-        const query = document.getElementById('search-input').value;
-        const filter = document.getElementById('filter-select').value;
-        search(query, filter);
-    });
+            const query = document.getElementById('search-input').value;
+            const filter = document.getElementById('filterType').value;
+            search(query, filter);
+        });
 
-    loadArtists();
+    // Agregar búsqueda al presionar Enter en el campo de búsqueda
+        document.getElementById('search-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const query = e.target.value;
+                const filter = document.getElementById('filterType').value;
+                search(query, filter);
+            }
+        });
+
+    loadArtists(); // Cargar artistas al inicio
 });
+
+function handleNavClick(e) {
+    e.preventDefault();
+    const sectionId = e.target.getAttribute('data-section');
+    showSection(sectionId);
+    setActiveLink(e.target);
+}
 // Manejar la navegación entre secciones
 function navigateToSection(sectionId) {
     // Ocultar todas las secciones
@@ -286,4 +299,108 @@ async function showDetail(type, id) {
     // Ocultar todas las secciones y mostrar el detalle
     document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
     detailSection.classList.add('active');
+}
+
+
+
+
+//Logica de BUSCAR
+
+async function search(query, filter) {
+    if (!query.trim()) {
+        alert('Por favor ingrese un término de búsqueda');
+        return;
+    }
+
+    try {
+        // Construir URL de búsqueda
+        const searchUrl = `/api/search?query=${encodeURIComponent(query)}&filter=${filter}`;
+        const response = await fetch(searchUrl);
+        const results = await response.json();
+
+        // Mostrar resultados
+        displaySearchResults(results, filter);
+
+        // Mostrar sección de resultados
+        showSection('search-results');
+    } catch (error) {
+        console.error('Error en búsqueda:', error);
+        alert('Error al realizar la búsqueda');
+    }
+}
+
+function displaySearchResults(results, filter) {
+    const container = document.getElementById('search-results-container');
+    container.innerHTML = ''; // Limpiar resultados anteriores
+
+    if (results.length === 0) {
+        container.innerHTML = '<p class="no-results">No se encontraron resultados</p>';
+        return;
+    }
+
+    if (filter === 'artists') {
+        results.forEach(artist => {
+            const artistCard = document.createElement('div');
+            artistCard.className = 'grid-item artist-card';
+
+            artistCard.innerHTML = `
+                <a href="${artist.spotify_url}" target="_blank" class="artist-image-link">
+                    <img src="${artist.image_url || '/placeholder-artist.jpg'}" alt="${artist.name}" class="artist-image">
+                </a>
+                <div class="artist-info">
+                    <h3>${artist.name}</h3>
+                    <p class="followers">Seguidores: ${artist.followers?.toLocaleString() || 'N/A'}</p>
+                    <p class="genres">Géneros: ${artist.genres?.join(', ') || 'N/A'}</p>
+                </div>
+            `;
+
+            container.appendChild(artistCard);
+        });
+    }
+    // Aquí puedes agregar más casos para 'albums' y 'songs' en el futuro
+}
+
+// Función helper para mostrar secciones
+function showSection(sectionId) {
+    // Ocultar todas las secciones
+    document.querySelectorAll('main > section').forEach(section => {
+        section.classList.remove('active');
+    });
+
+    // Mostrar la sección solicitada
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.classList.add('active');
+    }
+}
+
+function displaySearchResults(results, filter) {
+    const container = document.getElementById('search-results-container');
+    container.innerHTML = ''; // Limpiar resultados anteriores
+
+    if (results.length === 0) {
+        container.innerHTML = '<p class="no-results">No se encontraron resultados</p>';
+        return;
+    }
+
+    if (filter === 'artists') {
+        results.forEach(artist => {
+            const artistCard = document.createElement('div');
+            artistCard.className = 'grid-item artist-card';
+
+            artistCard.innerHTML = `
+                <a href="${artist.url}" target="_blank" class="artist-image-link">
+                    <img src="${artist.image}" alt="${artist.name}" class="artist-image">
+                </a>
+                <div class="artist-info">
+                    <h3>${artist.name}</h3>
+                    <p class="followers">Seguidores: ${artist.followers.toLocaleString()}</p>
+                    <p class="popularity">Popularidad: ${artist.popularity}</p>
+                    <p class="genres">Géneros: ${artist.genres.join(', ')}</p>
+                </div>
+            `;
+
+            container.appendChild(artistCard);
+        });
+    }
 }
