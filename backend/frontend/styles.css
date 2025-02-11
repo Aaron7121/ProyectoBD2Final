@@ -3,11 +3,12 @@ body {
     font-family: 'Arial', sans-serif;
     margin: 0;
     padding: 0;
-    background: #f5f5f5;
+    background: #121212;
+    color: #e0e0e0;
 }
 
 header {
-    background: #2c3e50;
+    background: #1a1a1a;
     color: white;
     padding: 1rem;
 }
@@ -29,7 +30,7 @@ nav {
 }
 
 .nav-links a.active {
-    border-bottom: 2px solid #e74c3c;
+    border-bottom: 2px solid #1db954;
 }
 
 main {
@@ -37,12 +38,14 @@ main {
     margin: 2rem auto;
     padding: 0 1rem;
 }
+
 .albums-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
     gap: 1rem;
     margin-top: 2rem;
 }
+
 .grid-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
@@ -54,8 +57,11 @@ main {
     width: 250px;
     height: 300px;
     overflow: hidden;
+    background: #1a1a1a;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s;
 }
-
 
 .artist:hover, .album:hover, .song:hover {
     transform: translateY(-5px);
@@ -67,19 +73,21 @@ main {
     object-fit: cover;
     border-radius: 5px;
 }
+
 .search-result img {
     width: 100%;
     height: auto;
     border-radius: 5px;
     margin-bottom: 1rem;
 }
+
 /* Páginas de detalle */
 .detail-page {
     display: none;
     padding: 2rem;
-    background: white;
+    background: #1a1a1a;
     border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
 }
 
 .detail-page.active {
@@ -87,7 +95,7 @@ main {
 }
 
 .back-button {
-    background: #e74c3c;
+    background: #1db954;
     color: white;
     border: none;
     padding: 0.5rem 1rem;
@@ -95,6 +103,7 @@ main {
     cursor: pointer;
     margin-bottom: 1rem;
 }
+
 /* Ocultar todas las secciones por defecto */
 section:not(.active) {
     display: none;
@@ -110,6 +119,7 @@ section.active {
     from { opacity: 0; }
     to { opacity: 1; }
 }
+
 /* Detalle de artista */
 .detail-image {
     width: 200px;
@@ -126,7 +136,7 @@ section.active {
 }
 
 .back-button {
-    background: #e74c3c;
+    background: #1db954;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -148,7 +158,9 @@ section.active {
     text-align: center;
     padding: 10px;
     border-radius: 8px;
+    background: #1a1a1a;
     transition: transform 0.2s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .artist-card img {
@@ -176,10 +188,10 @@ section.active {
 }
 
 .album-card {
-    background: white;
+    background: #1a1a1a;
     border-radius: 8px;
     padding: 15px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
     text-align: center;
 }
 
@@ -202,7 +214,7 @@ section.active {
 }
 
 .song-item {
-    background: white;
+    background: #1a1a1a;
     padding: 15px;
     margin-bottom: 10px;
     border-radius: 8px;
@@ -216,11 +228,11 @@ section.active {
     text-decoration: none;
     padding: 8px 15px;
     border-radius: 20px;
-    background: #f5f5f5;
+    background: #333;
 }
 
 .view-lyrics {
-    background: #333;
+    background: #1db954;
     color: white;
     border: none;
     padding: 8px 15px;
@@ -242,19 +254,20 @@ section.active {
 }
 
 .lyrics-content {
-    background: white;
+    background: #1a1a1a;
     padding: 20px;
     border-radius: 8px;
     max-width: 600px;
     max-height: 80vh;
     overflow-y: auto;
+    color: #e0e0e0;
 }
 
 .close-lyrics {
     display: block;
     margin: 20px auto 0;
     padding: 8px 20px;
-    background: #333;
+    background: #1db954;
     color: white;
     border: none;
     border-radius: 4px;
@@ -312,7 +325,7 @@ section.active {
 }
 
 .song-item {
-    background: white;
+    background: #1a1a1a;
     border-radius: 8px;
     margin-bottom: 8px;
     transition: background 0.3s ease;
@@ -339,7 +352,7 @@ section.active {
 }
 
 .song-title {
-    color: #333;
+    color: #e0e0e0;
     text-decoration: none;
     font-weight: 500;
     transition: color 0.3s ease;
@@ -370,11 +383,11 @@ section.active {
 }
 
 .lyrics-toggle:hover {
-    background: #f5f5f5;
+    background: #333;
 }
 
 .lyrics-toggle.active {
-    background: #f5f5f5;
+    background: #333;
     color: #1DB954;
 }
 
@@ -384,7 +397,7 @@ section.active {
 
 .lyrics-content {
     padding: 20px;
-    background: #f5f5f5;
+    background: #333;
     border-top: 1px solid #eee;
 }
 
@@ -392,7 +405,7 @@ section.active {
     white-space: pre-wrap;
     font-family: inherit;
     line-height: 1.6;
-    color: #333;
+    color: #e0e0e0;
 }
 
 /* Animaciones */
