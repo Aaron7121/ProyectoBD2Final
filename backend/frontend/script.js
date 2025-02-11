@@ -376,12 +376,7 @@ function showSection(sectionId) {
 
 function displaySearchResults(results, filter) {
     const container = document.getElementById('search-results-container');
-    container.innerHTML = ''; // Limpiar resultados anteriores
-
-    if (results.length === 0) {
-        container.innerHTML = '<p class="no-results">No se encontraron resultados</p>';
-        return;
-    }
+    container.innerHTML = '';
 
     if (filter === 'artists') {
         results.forEach(artist => {
@@ -393,7 +388,11 @@ function displaySearchResults(results, filter) {
                     <img src="${artist.image}" alt="${artist.name}" class="artist-image">
                 </a>
                 <div class="artist-info">
-                    <h3>${artist.name}</h3>
+                    <h3>
+                        <a href="#" class="artist-name" data-artist-id="${artist._id}">
+                            ${artist.name}
+                        </a>
+                    </h3>
                     <p class="followers">Seguidores: ${artist.followers.toLocaleString()}</p>
                     <p class="popularity">Popularidad: ${artist.popularity}</p>
                     <p class="genres">Géneros: ${artist.genres.join(', ')}</p>
@@ -402,5 +401,113 @@ function displaySearchResults(results, filter) {
 
             container.appendChild(artistCard);
         });
+
+        // Agregar event listeners para los nombres de artistas
+        document.querySelectorAll('.artist-name').forEach(link => {
+            link.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const artistId = e.target.dataset.artistId;
+                await loadArtistDetails(artistId);
+            });
+        });
     }
+}
+
+async function loadArtistDetails(artistId) {
+    try {
+        const response = await fetch(`/api/artists/${artistId}`);
+        const data = await response.json();
+        displayArtistDetails(data);
+        showSection('artist-detail');
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+function displayArtistDetails({ artist, albums }) {
+    const container = document.getElementById('artist-detail');
+    container.innerHTML = `
+        <h2>${artist.name}</h2>
+        <div class="albums-grid">
+            ${albums.map(album => `
+                <div class="album-card">
+                    <a href="#" class="album-link" data-album-id="${album._id}">
+                        <img src="${album.image}" alt="${album.name}" class="album-image">
+                    </a>
+                    <h3>${album.name}</h3>
+                    <p>Canciones: ${album.totalTracks}</p>
+                    <p>Fecha: ${new Date(album.releaseDate).toLocaleDateString()}</p>
+                </div>
+            `).join('')}
+        </div>
+    `;
+
+    // Agregar event listeners para los álbumes
+    document.querySelectorAll('.album-link').forEach(link => {
+        link.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const albumId = e.target.closest('.album-link').dataset.albumId;
+            await loadAlbumSongs(artistId, albumId);
+        });
+    });
+}
+
+async function loadAlbumSongs(artistId, albumId) {
+    try {
+        const response = await fetch(`/api/artists/${artistId}/album/${albumId}`);
+        const data = await response.json();
+        displayAlbumSongs(data);
+        showSection('album-detail');
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+function displayAlbumSongs({ album, songs }) {
+    const container = document.getElementById('album-detail');
+    container.innerHTML = `
+        <h2>${album.name}</h2>
+        <div class="songs-list">
+            ${songs.map(song => `
+                <div class="song-item">
+                    <h3>${song.title}</h3>
+                    <a href="${song.url}" target="_blank" class="spotify-link">
+                        Escuchar en Spotify
+                    </a>
+                    <button class="view-lyrics" data-song-id="${song._id}">
+                        Ver letra
+                    </button>
+                </div>
+            `).join('')}
+        </div>
+    `;
+
+    // Event listeners para los botones de letra
+    document.querySelectorAll('.view-lyrics').forEach(button => {
+        button.addEventListener('click', function() {
+            const songId = this.dataset.songId;
+            const song = songs.find(s => s._id === songId);
+            if (song.lyrics) {
+                showLyrics(song.title, song.lyrics);
+            }
+        });
+    });
+}
+
+function showLyrics(title, lyrics) {
+    const modal = document.createElement('div');
+    modal.className = 'lyrics-modal';
+    modal.innerHTML = `
+        <div class="lyrics-content">
+            <h3>${title}</h3>
+            <pre>${lyrics}</pre>
+            <button class="close-lyrics">Cerrar</button>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    modal.querySelector('.close-lyrics').addEventListener('click', () => {
+        modal.remove();
+    });
 }
