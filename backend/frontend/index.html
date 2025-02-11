@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AEFSONGS</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+    <nav>
+        <h1>AEFSONGS</h1>
+        <div class="nav-links">
+            <a href="#" class="active" data-section="home">Inicio</a>
+            <a href="#" data-section="artists">Artistas</a>
+            <a href="#" data-section="albums">Álbumes</a>
+            <a href="#" data-section="songs">Canciones</a>
+            <a href="#" data-section="about">Acerca de</a>
+        </div>
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="Buscar...">
+            <select id="filterType">
+                <option value="all">Todo</option>
+                <option value="artists">Artistas</option>
+                <option value="albums">Álbumes</option>
+                <option value="songs">Canciones</option>
+            </select>
+            <select id="filterGenre">
+                <option value="all">Todos los géneros</option>
+                <!-- Opciones se llenarán dinámicamente -->
+            </select>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <section id="home" class="active">
+        <h2>Lo más popular esta semana</h2>
+        <div class="highlights">
+            <div class="popular-artists">
+                <h3>Artistas Top</h3>
+                <div class="scroll-container" id="top-artists"></div>
+            </div>
+            <div class="popular-songs">
+                <h3>Canciones Trendings</h3>
+                <div class="scroll-container" id="top-songs"></div>
+            </div>
+        </div>
+    </section>
+    <section id="artists">
+        <h2>Artistas Populares</h2>
+        <div class="grid-container" id="artists-container"></div>
+    </section>
+    <section id="albums">
+        <h2>Álbumes Populares</h2>
+        <div class="grid-container" id="albums-container"></div>
+    </section>
+
+    <section id="songs">
+        <h2>Canciones Recomendadas</h2>
+        <div class="grid-container" id="songs-container"></div>
+    </section>
+    <section id="about">
+        <h2>Acerca de AEFSONGS</h2>
+        <div class="about-content">
+            <p>Proyecto desarrollado por [Tu Nombre] para mostrar datos musicales de MongoDB Atlas.</p>
+            <h3>Características técnicas:</h3>
+            <ul>
+                <li>Backend: Node.js + Express</li>
+                <li>Base de datos: MongoDB Atlas</li>
+                <li>Frontend: HTML5, CSS3, JavaScript vanilla</li>
+            </ul>
+            <h3>Contacto:</h3>
+            <p>📧 contacto@aefsongs.com</p>
+        </div>
+    </section>
+    <section id="search-results">
+        <h2>Resultados de Búsqueda</h2>
+        <div class="grid-container" id="search-results-container"></div>
+    </section>
+    <!-- Secciones de detalle -->
+    <section id="artist-detail" class="detail-page"></section>
+    <section id="album-detail" class="detail-page"></section>
+    <section id="song-detail" class="detail-page"></section>
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
