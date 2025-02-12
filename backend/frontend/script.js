@@ -354,10 +354,10 @@ function displaySearchResults(results, filter) {
     } else if (filter === 'albums') {
         results.forEach(album => {
             const albumCard = document.createElement('div');
-            albumCard.className = 'grid-item artist-card'; // Mantener el mismo estilo
+            albumCard.className = 'grid-item artist-card';
 
             albumCard.innerHTML = `
-                <a href="#" class="artist-image-link">
+                <a href="${album.spotifyUrl || '#'}" target="_blank" class="artist-image-link">
                     <img src="${album.image}" alt="${album.name}" class="artist-image">
                 </a>
                 <div class="artist-info">
@@ -379,10 +379,57 @@ function displaySearchResults(results, filter) {
             link.addEventListener('click', async (e) => {
                 e.preventDefault();
                 const albumId = e.target.dataset.albumId;
-                await loadAlbumDetails(albumId);
+                await loadDirectAlbumDetails(albumId);
             });
         });
     }
+}
+
+// Nueva función para cargar detalles del álbum directamente
+async function loadDirectAlbumDetails(albumId) {
+    try {
+        const response = await fetch(`/api/albums/${albumId}`);
+        const data = await response.json();
+        displayAlbumDetails(data);
+        showSection('album-detail');
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+// Nueva función para mostrar detalles del álbum
+function displayAlbumDetails({ album, songs }) {
+    const container = document.getElementById('album-detail');
+    container.innerHTML = `
+        <div class="album-header">
+            <button class="back-button" onclick="history.back()">← Volver</button>
+            <div class="album-info">
+                <img src="${album.image}" alt="${album.name}" class="album-cover">
+                <h2>${album.name}</h2>
+                <p>Fecha de lanzamiento: ${new Date(album.releaseDate).toLocaleDateString()}</p>
+                <p>Total de canciones: ${album.totalTracks}</p>
+                ${album.spotifyUrl ? `<a href="${album.spotifyUrl}" target="_blank" class="spotify-link">Escuchar en Spotify</a>` : ''}
+            </div>
+        </div>
+        <div class="songs-list">
+            <h3>Canciones</h3>
+            ${songs.map((song, index) => `
+                <div class="song-item">
+                    <span class="song-number">${index + 1}</span>
+                    <span class="song-title">${song.title}</span>
+                    <span class="song-duration">${formatDuration(song.duration)}</span>
+                    ${song.spotifyUrl ? `<a href="${song.spotifyUrl}" target="_blank" class="spotify-song-link">▶</a>` : ''}
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+// Función auxiliar para formatear la duración
+function formatDuration(ms) {
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
 
 async function loadArtistDetails(artistId) {
