@@ -76,9 +76,10 @@ async function searchSongs(query) {
         clientConnection = await client.connect();
         const collection = client.db('ProyectoDB2').collection('songs');
 
+        // Asegúrate de que el campo title tenga un índice de texto antes de usar $text
         const results = await collection
             .find({
-                title: { $regex: query, $options: 'i' }
+                $text: { $search: query }  // Cambiamos la búsqueda a texto completo
             })
             .project({
                 title: 1,
