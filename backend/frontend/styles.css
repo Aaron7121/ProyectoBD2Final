@@ -223,6 +223,55 @@ section.active {
     align-items: center;
 }
 
+.song-item {
+    display: grid;
+    grid-template-columns: 30px 1fr auto auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    border-bottom: 1px solid #eee;
+}
+
+.song-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.song-title {
+    flex: 1;
+    color: #333;
+    text-decoration: none;
+}
+
+.song-title:hover {
+    color: #1DB954;
+}
+
+.song-duration {
+    color: #666;
+    margin-right: 1rem;
+}
+
+.song-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.view-lyrics {
+    background: transparent;
+    border: 1px solid #1DB954;
+    color: #1DB954;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    cursor: pointer;
+}
+
+.view-lyrics:hover {
+    background: #1DB954;
+    color: white;
+}
+
 .spotify-link {
     color: #1DB954;
     text-decoration: none;
@@ -275,39 +324,77 @@ section.active {
 }
 
 .album-header {
-    position: relative;
-    padding: 20px;
-    background: linear-gradient(to bottom, #1a1a1a, #2a2a2a);
-    color: white;
-}
-
-.nav-button {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 20px;
-    cursor: pointer;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 8px;
-    transition: background 0.3s ease;
-}
-
-.nav-button:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.arrow {
-    font-size: 1.2em;
+    text-align: center;
+    padding: 3rem 2rem;
+    background: #121212;
+    margin-bottom: 2rem;
 }
 
 .album-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.album-cover {
+    width: 600px;
+    height: 600px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    margin-bottom: 2rem;
+}
+
+.album-details {
     text-align: center;
-    padding: 40px 0;
+}
+
+.album-details h2 {
+    font-size: 3rem;
+    font-weight: bold;
+    margin: 1rem 0;
+    color: #fff;
+}
+
+.album-details p {
+    font-size: 0.9rem;
+    color: #b3b3b3;
+    margin: 0.5rem 0;
+}
+
+.songs-list {
+    max-width: 800px;
+    margin: 3rem auto;
+    padding: 0 1rem;
+}
+
+.songs-list h3 {
+    font-size: 1.5rem;
+    color: #fff;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #282828;
+}
+
+.album-info {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.album-cover {
+    width: 300px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .album-detail-image {
