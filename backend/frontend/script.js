@@ -389,11 +389,21 @@ function displaySearchResults(results, filter) {
 async function loadDirectAlbumDetails(albumId) {
     try {
         const response = await fetch(`/api/albums/${albumId}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
+        
+        if (!data.album || !data.songs) {
+            console.error('Datos incompletos recibidos:', data);
+            throw new Error('Datos del álbum incompletos');
+        }
+        
         displayAlbumDetails(data);
         showSection('album-detail');
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error cargando detalles del álbum:', error);
+        alert('Error al cargar los detalles del álbum');
     }
 }
 
@@ -401,35 +411,52 @@ async function loadDirectAlbumDetails(albumId) {
 function displayAlbumDetails({ album, songs }) {
     const container = document.getElementById('album-detail');
     container.innerHTML = `
+        <button class="back-button" onclick="history.back()">← Volver</button>
         <div class="album-header">
-            <button class="back-button" onclick="history.back()">← Volver</button>
             <div class="album-info">
                 <img src="${album.image}" alt="${album.name}" class="album-cover">
-                <h2>${album.name}</h2>
-                <p>Fecha de lanzamiento: ${new Date(album.releaseDate).toLocaleDateString()}</p>
-                <p>Total de canciones: ${album.totalTracks}</p>
-                ${album.spotifyUrl ? `<a href="${album.spotifyUrl}" target="_blank" class="spotify-link">Escuchar en Spotify</a>` : ''}
+                <div class="album-details">
+                    <h2>${album.name}</h2>
+                    <p>Fecha de lanzamiento: ${new Date(album.releaseDate).toLocaleDateString()}</p>
+                    <p>${album.totalTracks} canciones</p>
+                </div>
             </div>
         </div>
         <div class="songs-list">
             <h3>Canciones</h3>
             ${songs.map((song, index) => `
                 <div class="song-item">
-                    <span class="song-number">${index + 1}</span>
-                    <span class="song-title">${song.title}</span>
-                    <span class="song-duration">${formatDuration(song.duration)}</span>
-                    ${song.spotifyUrl ? `<a href="${song.spotifyUrl}" target="_blank" class="spotify-song-link">▶</a>` : ''}
+                    <span class="song-number">${(index + 1).toString().padStart(2, '0')}</span>
+                    <div class="song-info">
+                        ${song.url ? 
+                            `<a href="${song.url}" target="_blank" class="song-title">${song.title}</a>` : 
+                            `<span class="song-title">${song.title}</span>`
+                        }
+                        <span class="song-duration">${formatDuration(song.duration)}</span>
+                    </div>
+                    <div class="song-actions">
+                        ${song.lyrics ? 
+                            `<button class="view-lyrics" data-song-id="${song._id}">
+                                Ver letra
+                            </button>` : 
+                            ''
+                        }
+                    </div>
                 </div>
             `).join('')}
         </div>
     `;
-}
 
-// Función auxiliar para formatear la duración
-function formatDuration(ms) {
-    const minutes = Math.floor(ms / 60000);
-    const seconds = Math.floor((ms % 60000) / 1000);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    // Event listeners para los botones de letra
+    document.querySelectorAll('.view-lyrics').forEach(button => {
+        button.addEventListener('click', function() {
+            const songId = this.dataset.songId;
+            const song = songs.find(s => s._id === songId);
+            if (song.lyrics) {
+                showLyrics(song.title, song.lyrics);
+            }
+        });
+    });
 }
 
 async function loadArtistDetails(artistId) {
@@ -446,7 +473,7 @@ async function loadArtistDetails(artistId) {
 function displayArtistDetails({ artist, albums }) {
     const container = document.getElementById('artist-detail');
     container.innerHTML = `
-        <h2>${artist.name}</h2>
+        <button class="back-button" onclick="history.back()">← Volver</button>
         <div class="albums-grid">
             ${albums.map(album => `
                 <div class="album-card">
@@ -461,55 +488,12 @@ function displayArtistDetails({ artist, albums }) {
         </div>
     `;
 
-    // Agregar event listeners para los álbumes
+    // Actualizar event listeners para los álbumes
     document.querySelectorAll('.album-link').forEach(link => {
         link.addEventListener('click', async (e) => {
             e.preventDefault();
             const albumId = e.target.closest('.album-link').dataset.albumId;
-            const artistId = document.querySelector('.artist-name').dataset.artistId;
-            await loadAlbumSongs(artistId, albumId);
-        });
-    });
-}
-
-async function loadAlbumSongs(artistId, albumId) {
-    try {
-        const response = await fetch(`/api/artists/${artistId}/album/${albumId}`);
-        const data = await response.json();
-        displayAlbumSongs(data);
-        showSection('album-detail');
-    } catch (error) {
-        console.error('Error:', error);
-    }
-}
-
-function displayAlbumSongs({ album, songs }) {
-    const container = document.getElementById('album-detail');
-    container.innerHTML = `
-        <h2>${album.name}</h2>
-        <div class="songs-list">
-            ${songs.map(song => `
-                <div class="song-item">
-                    <h3>${song.title}</h3>
-                    <a href="${song.url}" target="_blank" class="spotify-link">
-                        Escuchar en Spotify
-                    </a>
-                    <button class="view-lyrics" data-song-id="${song._id}">
-                        Ver letra
-                    </button>
-                </div>
-            `).join('')}
-        </div>
-    `;
-
-    // Event listeners para los botones de letra
-    document.querySelectorAll('.view-lyrics').forEach(button => {
-        button.addEventListener('click', function() {
-            const songId = this.dataset.songId;
-            const song = songs.find(s => s._id === songId);
-            if (song.lyrics) {
-                showLyrics(song.title, song.lyrics);
-            }
+            await loadDirectAlbumDetails(albumId); // Usar directamente loadDirectAlbumDetails
         });
     });
 }
@@ -536,8 +520,25 @@ async function loadAlbumDetails(albumId) {
     try {
         const response = await fetch(`/api/albums/${albumId}`);
         const data = await response.json();
-        displayAlbumSongs(data);
+        displayAlbumDetails(data);
         showSection('album-detail');
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+// Agregar la función formatDuration al inicio del archivo, después de las declaraciones iniciales
+function formatDuration(ms) {
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// Modificar la función loadAlbumSongs para usar directamente loadDirectAlbumDetails
+async function loadAlbumSongs(artistId, albumId) {
+    try {
+        // Simplificar usando la misma función que ya funciona para detalles del álbum
+        await loadDirectAlbumDetails(albumId);
     } catch (error) {
         console.error('Error:', error);
     }
