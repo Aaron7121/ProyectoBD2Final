@@ -36,3 +36,4 @@ router.get('/:albumId', async (req, res) => {
 });
 
 module.exports = router;
+
