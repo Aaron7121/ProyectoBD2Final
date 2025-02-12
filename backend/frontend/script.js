@@ -1,54 +1,27 @@
 document.addEventListener('DOMContentLoaded', () => {
     const navLinks = document.querySelectorAll('.nav-links a');
     navLinks.forEach(link => {
-        link.removeEventListener('click', handleNavClick);
+        link.removeEventListener('click', handleNavClick); // Evitar duplicados
         link.addEventListener('click', handleNavClick);
     });
 
+    document.getElementById('search-button').addEventListener('click', () => {
+            const query = document.getElementById('search-input').value;
+            const filter = document.getElementById('filterType').value;
+            search(query, filter);
+        });
 
-    document.getElementById('search-button').addEventListener('click', async () => {
-        const query = document.getElementById('search-input').value.trim();
-        const filter = document.getElementById('filterType').value;
-        search(query, filter);
-        if (!query) {
-            alert("Por favor, ingresa un término de búsqueda.");
-            return;
-        }
-
-        let url = '';
-        if (filter === 'artists') {
-            url = `/api/search?query=${encodeURIComponent(query)}&filter=artists`;
-        } else if (filter === 'albums') {
-            url = `/api/search?query=${encodeURIComponent(query)}&filter=albums`;
-        }
-
-        try {
-            const response = await fetch(url);
-            const results = await response.json();
-            displaySearchResults(results, filter);
-        } catch (error) {
-            console.error("Error en la búsqueda:", error);
-        }
-    });
-
+    // Agregar búsqueda al presionar Enter en el campo de búsqueda
     document.getElementById('search-input').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
-            const query = e.target.value.trim();
+            const query = e.target.value;
             const filter = document.getElementById('filterType').value;
-            if (query) {
-                search(query, filter);
-            }
+            search(query, filter);
         }
     });
 
-    loadArtists();
+    loadArtists(); // Cargar artistas al inicio
 });
-
-
-
-
-
-
 
 function handleNavClick(e) {
     e.preventDefault();
@@ -57,31 +30,32 @@ function handleNavClick(e) {
     setActiveLink(e.target);
 }
 
+// Manejar la navegación entre secciones
 function navigateToSection(sectionId) {
+    // Ocultar todas las secciones
     document.querySelectorAll('section').forEach(section => {
         section.classList.remove('active');
     });
 
+    // Mostrar la sección seleccionada
     const targetSection = document.getElementById(sectionId);
     if (targetSection) {
         targetSection.classList.add('active');
-        window.scrollTo(0, 0);
+        window.scrollTo(0, 0); // Volver al inicio de la página
     }
 }
 
+// Event listeners para los enlaces del menú
 document.querySelectorAll('.nav-links a').forEach(link => {
     link.addEventListener('click', (e) => {
         e.preventDefault();
         const sectionId = link.dataset.section;
         navigateToSection(sectionId);
-        loadSectionContent(sectionId);
+        loadSectionContent(sectionId); // Cargar datos dinámicos
     });
 });
 
-
-
-
-
+// Cargar contenido según la sección
 function loadSectionContent(sectionId) {
     switch(sectionId) {
         case 'artists':
@@ -94,6 +68,7 @@ function loadSectionContent(sectionId) {
             loadCancionesTrending();
             break;
         case 'about':
+            // No necesita carga dinámica
             break;
     }
 }
@@ -102,98 +77,27 @@ async function loadArtistasDestacados() {
     try {
         const response = await fetch('/api/artists?sort=popularity');
         const artists = await response.json();
-        renderArtists(artists);
+        renderArtistas(artists);
     } catch (error) {
         console.error('Error cargando artistas:', error);
     }
 }
 
-function renderArtists(artists) {
+function renderArtistas(artists) {
     const container = document.getElementById('artists-container');
-    container.innerHTML = '';
+    container.innerHTML = ''; // Limpiar contenido previo
 
     artists.forEach(artist => {
-        const card = document.createElement('div');
-        card.className = 'artist-card clickable';
-        card.innerHTML = `
-            <img src="${artist.image}" alt="${artist.name}" data-id="${artist._id}">
-            <h3>${artist.name}</h3>
-            <p>${artist.followers} seguidores</p>
+        const card = `
+            <div class="artist-card">
+                <img src="${artist.image}" alt="${artist.name}">
+                <h3>${artist.name}</h3>
+                <p>${artist.followers} seguidores</p>
+                <button onclick="showArtistDetail('${artist._id}')">Ver detalle</button>
+            </div>
         `;
-
-        // Evento click para ver detalles del artista
-        card.addEventListener('click', () => showArtistDetail(artist._id));
-        container.appendChild(card);
+        container.insertAdjacentHTML('beforeend', card);
     });
-}
-async function showAlbumDetail(albumId) {
-    try {
-        const [album, songs] = await Promise.all([
-            fetch(`/api/albums/${albumId}`).then(res => res.json()),
-            fetch(`/api/albums/${albumId}/songs`).then(res => res.json())
-        ]);
-
-        let html = `
-            <button class="back-button" onclick="showArtistDetail('${album.artistId}')">← Volver</button>
-            <div class="album-header">
-                <img src="${album.image}" class="detail-image">
-                <h2>${album.name}</h2>
-                <p>${album.totalTracks} canciones</p>
-            </div>
-            <div class="songs-list">
-        `;
-
-        songs.forEach(song => {
-            html += `
-                <div class="song-card clickable" data-id="${song._id}">
-                    <div class="song-info">
-                        <h4>${song.title}</h4>
-                        <p>${Math.floor(song.duration / 60)}:${(song.duration % 60).toString().padStart(2, '0')}</p>
-                    </div>
-                </div>
-            `;
-        });
-
-        html += `</div>`;
-
-        const detailSection = document.getElementById('album-detail');
-        detailSection.innerHTML = html;
-        detailSection.classList.add('active');
-
-        // Event listeners para canciones
-        document.querySelectorAll('.song-card').forEach(card => {
-            card.addEventListener('click', () => showSongDetail(card.dataset.id));
-        });
-
-    } catch (error) {
-        console.error('Error:', error);
-    }
-}
-
-
-async function showSongDetail(songId) {
-    try {
-        const song = await fetch(`/api/songs/${songId}`).then(res => res.json());
-
-        const html = `
-            <button class="back-button" onclick="showAlbumDetail('${song.album}')">← Volver</button>
-            <div class="song-header">
-                <h2>${song.title}</h2>
-                <p>Duración: ${Math.floor(song.duration / 60)}:${(song.duration % 60).toString().padStart(2, '0')}</p>
-            </div>
-            <div class="lyrics-container">
-                <h3>Letra</h3>
-                <pre>${song.lyrics}</pre>
-            </div>
-        `;
-
-        const detailSection = document.getElementById('song-detail');
-        detailSection.innerHTML = html;
-        detailSection.classList.add('active');
-
-    } catch (error) {
-        console.error('Error:', error);
-    }
 }
 
 async function showArtistDetail(artistId) {
@@ -201,6 +105,7 @@ async function showArtistDetail(artistId) {
         const response = await fetch(`/api/artists/${artistId}`);
         const artist = await response.json();
 
+        // Ocultar main y mostrar detalle
         document.querySelector('main').style.display = 'none';
         document.getElementById('artist-detail').innerHTML = `
             <div class="detail-header">
@@ -219,10 +124,50 @@ async function showArtistDetail(artistId) {
         `;
 
         document.getElementById('artist-detail').classList.add('active');
-        loadAlbums(artistId);
+        loadAlbumesDelArtista(artistId); // Cargar álbumes
     } catch (error) {
         console.error('Error:', error);
     }
+}
+
+function goBack() {
+    document.querySelector('main').style.display = 'block';
+    document.querySelector('.detail-page').classList.remove('active');
+}
+
+async function search(query, filter) {
+    if (!query.trim()) {
+        alert('Por favor ingrese un término de búsqueda');
+        return;
+    }
+
+    try {
+        // Construir URL de búsqueda según el filtro
+        const searchUrl = `/api/search?query=${encodeURIComponent(query)}&filter=${filter}`;
+        const response = await fetch(searchUrl);
+        const results = await response.json();
+
+        displaySearchResults(results, filter);
+        showSection('search-results');
+    } catch (error) {
+        console.error('Error en búsqueda:', error);
+        alert('Error al realizar la búsqueda');
+    }
+}
+
+function renderSearchResults(results) {
+    const container = document.getElementById('search-results-container');
+    container.innerHTML = '';
+    results.forEach(result => {
+        const div = document.createElement('div');
+        div.className = 'search-result';
+        div.innerHTML = `
+            <h3>${result.name}</h3>
+            <img src="${result.image}" alt="${result.name}">
+            <p>${result.description}</p>
+        `;
+        container.appendChild(div);
+    });
 }
 
 function showSection(sectionId) {
@@ -238,6 +183,7 @@ function setActiveLink(activeLink) {
     });
     activeLink.classList.add('active');
 }
+
 async function loadArtists() {
     const response = await fetch('http://localhost:3000/api/artists');
     const artists = await response.json();
@@ -259,6 +205,7 @@ function renderData(data, containerId, template) {
         container.appendChild(div);
     });
 }
+
 async function loadAlbums() {
     const response = await fetch('http://localhost:3000/api/albums');
     const albums = await response.json();
@@ -270,7 +217,6 @@ async function loadAlbums() {
     `);
 }
 
-
 async function loadSongs() {
     const response = await fetch('http://localhost:3000/api/songs');
     const songs = await response.json();
@@ -280,7 +226,6 @@ async function loadSongs() {
         <p>Álbum: ${song.album}</p>
     `);
 }
-
 
 document.querySelectorAll('.nav-links a').forEach(link => {
     link.addEventListener('click', (e) => {
@@ -293,14 +238,9 @@ document.querySelectorAll('.nav-links a').forEach(link => {
         if (sectionId === 'albums') loadAlbums();
         if (sectionId === 'songs') loadSongs();
     });
-})
-/*function goBack() {
-    document.querySelector('main').style.display = 'block';
-    document.querySelector('.detail-page').classList.remove('active');
-}*/
+});
 
-//seaarchs buscadores
-
+// Función de búsqueda unificada
 async function performSearch() {
     const searchTerm = document.getElementById('searchInput').value;
     const filterType = document.getElementById('filterType').value;
@@ -338,6 +278,7 @@ function renderSearchResults(results, type) {
     });
 }
 
+// Función para mostrar detalles
 async function showDetail(type, id) {
     const response = await fetch(`/api/${type}/${id}`);
     const data = await response.json();
@@ -367,25 +308,7 @@ async function showDetail(type, id) {
     detailSection.classList.add('active');
 }
 
-//logica de buscar
-async function search(query, filter) {
-    if (!query.trim()) {
-        alert('Por favor ingrese un término de búsqueda');
-        return;
-    }
-
-    try {
-        const searchUrl = `/api/search?query=${encodeURIComponent(query)}&filter=${filter}`;
-        const response = await fetch(searchUrl);
-        const results = await response.json();
-
-        displaySearchResults(results, filter);
-        showSection('search-results');
-    } catch (error) {
-        console.error('Error en búsqueda:', error);
-        alert('Error al realizar la búsqueda');
-    }
-}
+//Logica de BUSCAR
 
 function displaySearchResults(results, filter) {
     const container = document.getElementById('search-results-container');
@@ -417,9 +340,9 @@ function displaySearchResults(results, filter) {
                 </div>
             `;
 
-
             container.appendChild(artistCard);
         });
+
         // Agregar event listeners para los nombres de artistas
         document.querySelectorAll('.artist-name').forEach(link => {
             link.addEventListener('click', async (e) => {
@@ -429,25 +352,112 @@ function displaySearchResults(results, filter) {
             });
         });
     } else if (filter === 'albums') {
-        results.slice(0, 18).forEach(album => {
+        results.forEach(album => {
             const albumCard = document.createElement('div');
-            albumCard.className = 'grid-item album-card';
+            albumCard.className = 'grid-item artist-card';
 
             albumCard.innerHTML = `
-                <a href="${album.spotify_url}" target="_blank" class="album-image-link">
-                    <img src="${album.image }" alt="${album.name}" class="album-image">
+                <a href="${album.spotifyUrl || '#'}" target="_blank" class="artist-image-link">
+                    <img src="${album.image}" alt="${album.name}" class="artist-image">
                 </a>
-                <div class="album-info">
-                    <h3>${album.name}</h3>
-                    <p class="release-date">Lanzamiento: ${new Date(album.releaseDate).toLocaleDateString()}</p>
-                    <p class="total-tracks">Canciones: ${album.releaseDate}</p>
+                <div class="artist-info">
+                    <h3>
+                        <a href="#" class="album-name" data-album-id="${album._id}">
+                            ${album.name}
+                        </a>
+                    </h3>
+                    <p>Canciones: ${album.totalTracks}</p>
+                    <p>Lanzamiento: ${new Date(album.releaseDate).toLocaleDateString()}</p>
                 </div>
             `;
 
             container.appendChild(albumCard);
         });
+
+        // Agregar event listeners para los álbumes
+        document.querySelectorAll('.album-name').forEach(link => {
+            link.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const albumId = e.target.dataset.albumId;
+                await loadDirectAlbumDetails(albumId);
+            });
+        });
     }
-} 
+}
+
+// Nueva función para cargar detalles del álbum directamente
+async function loadDirectAlbumDetails(albumId) {
+    try {
+        const response = await fetch(`/api/albums/${albumId}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        
+        if (!data.album || !data.songs) {
+            console.error('Datos incompletos recibidos:', data);
+            throw new Error('Datos del álbum incompletos');
+        }
+        
+        displayAlbumDetails(data);
+        showSection('album-detail');
+    } catch (error) {
+        console.error('Error cargando detalles del álbum:', error);
+        alert('Error al cargar los detalles del álbum');
+    }
+}
+
+// Nueva función para mostrar detalles del álbum
+function displayAlbumDetails({ album, songs }) {
+    const container = document.getElementById('album-detail');
+    container.innerHTML = `
+        <button class="back-button" onclick="history.back()">← Volver</button>
+        <div class="album-header">
+            <div class="album-info">
+                <img src="${album.image}" alt="${album.name}" class="album-cover">
+                <div class="album-details">
+                    <h2>${album.name}</h2>
+                    <p>Fecha de lanzamiento: ${new Date(album.releaseDate).toLocaleDateString()}</p>
+                    <p>${album.totalTracks} canciones</p>
+                </div>
+            </div>
+        </div>
+        <div class="songs-list">
+            <h3>Canciones</h3>
+            ${songs.map((song, index) => `
+                <div class="song-item">
+                    <span class="song-number">${(index + 1).toString().padStart(2, '0')}</span>
+                    <div class="song-info">
+                        ${song.url ? 
+                            `<a href="${song.url}" target="_blank" class="song-title">${song.title}</a>` : 
+                            `<span class="song-title">${song.title}</span>`
+                        }
+                        <span class="song-duration">${formatDuration(song.duration)}</span>
+                    </div>
+                    <div class="song-actions">
+                        ${song.lyrics ? 
+                            `<button class="view-lyrics" data-song-id="${song._id}">
+                                Ver letra
+                            </button>` : 
+                            ''
+                        }
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+
+    // Event listeners para los botones de letra
+    document.querySelectorAll('.view-lyrics').forEach(button => {
+        button.addEventListener('click', function() {
+            const songId = this.dataset.songId;
+            const song = songs.find(s => s._id === songId);
+            if (song.lyrics) {
+                showLyrics(song.title, song.lyrics);
+            }
+        });
+    });
+}
 
 async function loadArtistDetails(artistId) {
     try {
@@ -459,6 +469,7 @@ async function loadArtistDetails(artistId) {
         console.error('Error:', error);
     }
 }
+
 function displayArtistDetails({ artist, albums }) {
     const container = document.getElementById('artist-detail');
     container.innerHTML = `
@@ -482,53 +493,11 @@ function displayArtistDetails({ artist, albums }) {
         link.addEventListener('click', async (e) => {
             e.preventDefault();
             const albumId = e.target.closest('.album-link').dataset.albumId;
-            const artistId = document.querySelector('.artist-name').dataset.artistId;
-            await loadAlbumSongs(artistId, albumId);
+            await loadDirectAlbumDetails(albumId); // Usar directamente loadDirectAlbumDetails
         });
     });
 }
 
-//despliegue de las cancionesde lops albumes
-async function loadAlbumSongs(artistId, albumId) {
-    try {
-        const response = await fetch(`/api/artists/${artistId}/album/${albumId}`);
-        const data = await response.json();
-        displayAlbumSongs(data);
-        showSection('album-detail');
-    } catch (error) {
-        console.error('Error:', error);
-    }
-}
-function displayAlbumSongs({ album, songs }) {
-    const container = document.getElementById('album-detail');
-    container.innerHTML = `
-        <h2>${album.name}</h2>
-        <div class="songs-list">
-            ${songs.map(song => `
-                <div class="song-item">
-                    <h3>${song.title}</h3>
-                    <a href="${song.url}" target="_blank" class="spotify-link">
-                        Escuchar en Spotify
-                    </a>
-                    <button class="view-lyrics" data-song-id="${song._id}">
-                        Ver letra
-                    </button>
-                </div>
-            `).join('')}
-        </div>
-    `;
-
-    // Event listeners para los botones de letra
-    document.querySelectorAll('.view-lyrics').forEach(button => {
-        button.addEventListener('click', function() {
-            const songId = this.dataset.songId;
-            const song = songs.find(s => s._id === songId);
-            if (song.lyrics) {
-                showLyrics(song.title, song.lyrics);
-            }
-        });
-    });
-}
 function showLyrics(title, lyrics) {
     const modal = document.createElement('div');
     modal.className = 'lyrics-modal';
@@ -545,4 +514,32 @@ function showLyrics(title, lyrics) {
     modal.querySelector('.close-lyrics').addEventListener('click', () => {
         modal.remove();
     });
+}
+
+async function loadAlbumDetails(albumId) {
+    try {
+        const response = await fetch(`/api/albums/${albumId}`);
+        const data = await response.json();
+        displayAlbumDetails(data);
+        showSection('album-detail');
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+// Agregar la función formatDuration al inicio del archivo, después de las declaraciones iniciales
+function formatDuration(ms) {
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// Modificar la función loadAlbumSongs para usar directamente loadDirectAlbumDetails
+async function loadAlbumSongs(artistId, albumId) {
+    try {
+        // Simplificar usando la misma función que ya funciona para detalles del álbum
+        await loadDirectAlbumDetails(albumId);
+    } catch (error) {
+        console.error('Error:', error);
+    }
 }
