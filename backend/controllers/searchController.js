@@ -39,6 +39,38 @@ async function searchArtists(query, genre) {
     }
 }
 
+async function searchAlbums(query) {
+    let clientConnection;
+    try {
+        clientConnection = await client.connect();
+        const collection = client.db('ProyectoDB2').collection('albums');
+
+        const results = await collection
+            .find({
+                name: { $regex: query, $options: 'i' }
+            })
+            .project({
+                name: 1,
+                image: 1,
+                releaseDate: 1,
+                totalTracks: 1,
+                _id: 1
+            })
+            .limit(18)
+            .toArray();
+
+        return results;
+    } catch (error) {
+        console.error('Error en searchAlbums:', error);
+        throw new Error('Error al buscar álbumes: ' + error.message);
+    } finally {
+        if (clientConnection) {
+            await clientConnection.close();
+        }
+    }
+}
+
 module.exports = {
-    searchArtists
+    searchArtists,
+    searchAlbums
 };

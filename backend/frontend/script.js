@@ -136,10 +136,23 @@ function goBack() {
 }
 
 async function search(query, filter) {
-    let url = `http://localhost:3000/api/search?query=${query}&filter=${filter}`;
-    const response = await fetch(url);
-    const results = await response.json();
-    renderSearchResults(results);
+    if (!query.trim()) {
+        alert('Por favor ingrese un término de búsqueda');
+        return;
+    }
+
+    try {
+        // Construir URL de búsqueda según el filtro
+        const searchUrl = `/api/search?query=${encodeURIComponent(query)}&filter=${filter}`;
+        const response = await fetch(searchUrl);
+        const results = await response.json();
+
+        displaySearchResults(results, filter);
+        showSection('search-results');
+    } catch (error) {
+        console.error('Error en búsqueda:', error);
+        alert('Error al realizar la búsqueda');
+    }
 }
 
 function renderSearchResults(results) {
@@ -297,77 +310,14 @@ async function showDetail(type, id) {
 
 //Logica de BUSCAR
 
-async function search(query, filter) {
-    if (!query.trim()) {
-        alert('Por favor ingrese un término de búsqueda');
-        return;
-    }
-
-    try {
-        // Construir URL de búsqueda
-        const searchUrl = `/api/search?query=${encodeURIComponent(query)}&filter=${filter}`;
-        const response = await fetch(searchUrl);
-        const results = await response.json();
-
-        // Mostrar resultados
-        displaySearchResults(results, filter);
-
-        // Mostrar sección de resultados
-        showSection('search-results');
-    } catch (error) {
-        console.error('Error en búsqueda:', error);
-        alert('Error al realizar la búsqueda');
-    }
-}
-
 function displaySearchResults(results, filter) {
     const container = document.getElementById('search-results-container');
-    container.innerHTML = ''; // Limpiar resultados anteriores
+    container.innerHTML = '';
 
     if (results.length === 0) {
         container.innerHTML = '<p class="no-results">No se encontraron resultados</p>';
         return;
     }
-
-    if (filter === 'artists') {
-        results.forEach(artist => {
-            const artistCard = document.createElement('div');
-            artistCard.className = 'grid-item artist-card';
-
-            artistCard.innerHTML = `
-                <a href="${artist.spotify_url}" target="_blank" class="artist-image-link">
-                    <img src="${artist.image_url || '/placeholder-artist.jpg'}" alt="${artist.name}" class="artist-image">
-                </a>
-                <div class="artist-info">
-                    <h3>${artist.name}</h3>
-                    <p class="followers">Seguidores: ${artist.followers?.toLocaleString() || 'N/A'}</p>
-                    <p class="genres">Géneros: ${artist.genres?.join(', ') || 'N/A'}</p>
-                </div>
-            `;
-
-            container.appendChild(artistCard);
-        });
-    }
-    // Aquí puedes agregar más casos para 'albums' y 'songs' en el futuro
-}
-
-// Función helper para mostrar secciones
-function showSection(sectionId) {
-    // Ocultar todas las secciones
-    document.querySelectorAll('main > section').forEach(section => {
-        section.classList.remove('active');
-    });
-
-    // Mostrar la sección solicitada
-    const section = document.getElementById(sectionId);
-    if (section) {
-        section.classList.add('active');
-    }
-}
-
-function displaySearchResults(results, filter) {
-    const container = document.getElementById('search-results-container');
-    container.innerHTML = '';
 
     if (filter === 'artists') {
         results.forEach(artist => {
@@ -399,6 +349,37 @@ function displaySearchResults(results, filter) {
                 e.preventDefault();
                 const artistId = e.target.dataset.artistId;
                 await loadArtistDetails(artistId);
+            });
+        });
+    } else if (filter === 'albums') {
+        results.forEach(album => {
+            const albumCard = document.createElement('div');
+            albumCard.className = 'grid-item artist-card'; // Mantener el mismo estilo
+
+            albumCard.innerHTML = `
+                <a href="#" class="artist-image-link">
+                    <img src="${album.image}" alt="${album.name}" class="artist-image">
+                </a>
+                <div class="artist-info">
+                    <h3>
+                        <a href="#" class="album-name" data-album-id="${album._id}">
+                            ${album.name}
+                        </a>
+                    </h3>
+                    <p>Canciones: ${album.totalTracks}</p>
+                    <p>Lanzamiento: ${new Date(album.releaseDate).toLocaleDateString()}</p>
+                </div>
+            `;
+
+            container.appendChild(albumCard);
+        });
+
+        // Agregar event listeners para los álbumes
+        document.querySelectorAll('.album-name').forEach(link => {
+            link.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const albumId = e.target.dataset.albumId;
+                await loadAlbumDetails(albumId);
             });
         });
     }
@@ -502,4 +483,15 @@ function showLyrics(title, lyrics) {
     modal.querySelector('.close-lyrics').addEventListener('click', () => {
         modal.remove();
     });
+}
+
+async function loadAlbumDetails(albumId) {
+    try {
+        const response = await fetch(`/api/albums/${albumId}`);
+        const data = await response.json();
+        displayAlbumSongs(data);
+        showSection('album-detail');
+    } catch (error) {
+        console.error('Error:', error);
+    }
 }
