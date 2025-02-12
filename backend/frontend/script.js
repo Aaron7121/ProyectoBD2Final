@@ -366,8 +366,6 @@ function displaySearchResults(results, filter) {
                             ${album.name}
                         </a>
                     </h3>
-                    <p>Canciones: ${album.totalTracks}</p>
-                    <p>Lanzamiento: ${new Date(album.releaseDate).toLocaleDateString()}</p>
                 </div>
             `;
 
@@ -380,6 +378,36 @@ function displaySearchResults(results, filter) {
                 e.preventDefault();
                 const albumId = e.target.dataset.albumId;
                 await loadDirectAlbumDetails(albumId);
+            });
+        });
+    } else if (filter === 'songs') {
+        results.forEach(song => {
+            const songCard = document.createElement('div');
+            songCard.className = 'grid-item song-card';
+
+            songCard.innerHTML = `
+                <div class="song-info">
+                    <h3>
+                        <a href="${song.url}" target="_blank" class="song-title">
+                            ${song.title}
+                        </a>
+                    </h3>
+                    <p>Duración: ${formatDuration(song.duration)}</p>
+                    ${song.lyrics ? `<button class="view-lyrics" data-song-id="${song._id}">Ver letra</button>` : ''}
+                </div>
+            `;
+
+            container.appendChild(songCard);
+        });
+
+        // Agregar event listeners para los botones de letra
+        document.querySelectorAll('.view-lyrics').forEach(button => {
+            button.addEventListener('click', function() {
+                const songId = this.dataset.songId;
+                const song = results.find(s => s._id === songId);
+                if (song.lyrics) {
+                    showLyrics(song.title, song.lyrics);
+                }
             });
         });
     }
@@ -531,7 +559,7 @@ async function loadAlbumDetails(albumId) {
 function formatDuration(ms) {
     const minutes = Math.floor(ms / 60000);
     const seconds = Math.floor((ms % 60000) / 1000);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    return `${minutes}m ${seconds.toString().padStart(2, '0')}s`;
 }
 
 // Modificar la función loadAlbumSongs para usar directamente loadDirectAlbumDetails

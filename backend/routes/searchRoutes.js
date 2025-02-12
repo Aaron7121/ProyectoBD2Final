@@ -2,7 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { searchArtists, searchAlbums } = require('../controllers/searchController');
+const { searchArtists, searchAlbums, searchSongs } = require('../controllers/searchController');
 
 router.get('/', async (req, res) => {
     const { query, filter } = req.query;
@@ -17,6 +17,10 @@ router.get('/', async (req, res) => {
         // Manejar la búsqueda de álbumes
         else if (filter === 'albums') {
             results = await searchAlbums(query);
+        } 
+        // Manejar la búsqueda de canciones
+        else if (filter === 'songs') {
+            results = await searchSongs(query);
         }
 
         res.json(results);
