@@ -70,7 +70,39 @@ async function searchAlbums(query) {
     }
 }
 
+async function searchSongs(query) {
+    let clientConnection;
+    try {
+        clientConnection = await client.connect();
+        const collection = client.db('ProyectoDB2').collection('songs');
+
+        const results = await collection
+            .find({
+                title: { $regex: query, $options: 'i' }
+            })
+            .project({
+                title: 1,
+                duration: 1,
+                album: 1,
+                lyrics: 1,
+                url: 1,
+            })
+            .limit(20)
+            .toArray();
+
+        return results;
+    } catch (error) {
+        console.error('Error en searchSongs:', error);
+        throw new Error('Error al buscar canciones: ' + error.message);
+    } finally {
+        if (clientConnection) {
+            await clientConnection.close();
+        }
+    }
+}
+
 module.exports = {
     searchArtists,
-    searchAlbums
+    searchAlbums,
+    searchSongs
 };
