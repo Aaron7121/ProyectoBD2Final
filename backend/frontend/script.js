@@ -142,11 +142,17 @@ async function search(query, filter) {
     }
 
     try {
-        // Construir URL de búsqueda según el filtro
+        console.log('Realizando búsqueda:', { query, filter }); // Para debugging
         const searchUrl = `/api/search?query=${encodeURIComponent(query)}&filter=${filter}`;
         const response = await fetch(searchUrl);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const results = await response.json();
-
+        console.log('Resultados recibidos:', results); // Para debugging
+        
         displaySearchResults(results, filter);
         showSection('search-results');
     } catch (error) {
@@ -319,7 +325,8 @@ function displaySearchResults(results, filter) {
         return;
     }
 
-    if (filter === 'artists') {
+    // Modificamos esta parte para manejar tanto 'artists' como 'genres'
+    if (filter === 'artists' || filter === 'genres') {  // Añadimos 'genres' aquí
         results.forEach(artist => {
             const artistCard = document.createElement('div');
             artistCard.className = 'grid-item artist-card';
@@ -343,7 +350,7 @@ function displaySearchResults(results, filter) {
             container.appendChild(artistCard);
         });
 
-        // Agregar event listeners para los nombres de artistas
+        // Event listeners para los nombres de artistas
         document.querySelectorAll('.artist-name').forEach(link => {
             link.addEventListener('click', async (e) => {
                 e.preventDefault();
