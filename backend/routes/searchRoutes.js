@@ -2,7 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { searchArtists, searchAlbums, searchSongs } = require('../controllers/searchController');
+const { searchArtists, searchAlbums, searchSongs, searchByGenre } = require('../controllers/searchController');
 
 router.get('/', async (req, res) => {
     const { query, filter } = req.query;
@@ -21,6 +21,10 @@ router.get('/', async (req, res) => {
         // Manejar la búsqueda de canciones
         else if (filter === 'songs') {
             results = await searchSongs(query);
+        }
+        // Añadir el nuevo caso para búsqueda por géneros
+        else if (filter === 'genres') {
+            results = await searchByGenre(query);
         }
 
         res.json(results);

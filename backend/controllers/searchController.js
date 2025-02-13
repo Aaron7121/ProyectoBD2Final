@@ -102,8 +102,46 @@ async function searchSongs(query) {
     }
 }
 
+async function searchByGenre(query) {
+    try {
+        await client.connect();
+        const collection = client.db('ProyectoDB2').collection('artists');
+
+        const results = await collection.aggregate([
+            {
+                $search: {
+                    "index": "generos",
+                    "text": {
+                        "query": query,
+                        "path": "genres"
+                    }
+                }
+            },
+            {
+                $project: {
+                    name: 1,
+                    image: 1,
+                    followers: 1,
+                    genres: 1,
+                    popularity: 1,
+                    url: 1
+                }
+            },
+            {
+                $limit: 18
+            }
+        ]).toArray();
+
+        return results;
+    } catch (error) {
+        console.error('Error en searchByGenre:', error);
+        throw error;
+    }
+}
+
 module.exports = {
     searchArtists,
     searchAlbums,
-    searchSongs
+    searchSongs,
+    searchByGenre  // Añadir la nueva función al export
 };
