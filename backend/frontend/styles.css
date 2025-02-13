@@ -255,7 +255,8 @@ section.active {
 
 .song-actions {
     display: flex;
-    gap: 0.5rem;
+    gap: 1rem;
+    margin-top: 0.5rem;
 }
 
 .view-lyrics {
@@ -273,20 +274,21 @@ section.active {
 }
 
 .spotify-link {
-    color: #1DB954;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #1DB954;
+    color: white;
     text-decoration: none;
-    padding: 8px 15px;
     border-radius: 20px;
-    background: #333;
+    font-size: 0.9rem;
+    transition: transform 0.2s ease;
 }
 
-.view-lyrics {
-    background: #1db954;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 20px;
-    cursor: pointer;
+.spotify-link:hover {
+    transform: scale(1.05);
+    background: #1ed760;
 }
 
 .lyrics-modal {
@@ -310,6 +312,14 @@ section.active {
     max-height: 80vh;
     overflow-y: auto;
     color: #e0e0e0;
+}
+
+.lyrics-modal .lyrics-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #333;
 }
 
 .close-lyrics {
@@ -673,4 +683,17 @@ section.active {
     margin-bottom: 1rem;
     color: #1db954;
     font-size: 1.5rem;
+}
+
+.top-song-title {
+    color: #ffffff;
+    font-size: 1.1rem;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.top-song-title:hover {
+    color: #1DB954;
 }

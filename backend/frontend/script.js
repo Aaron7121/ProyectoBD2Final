@@ -28,20 +28,20 @@ document.addEventListener('DOMContentLoaded', () => {
 // Modificar la función loadTopContent
 async function loadTopContent() {
     try {
-        // Cargar artistas top
-        const artistsResponse = await fetch('/api/artists?sort=popularity&limit=5');
+        // Cargar artistas top (aumentamos a 10)
+        const artistsResponse = await fetch('/api/artists?sort=popularity&limit=10');
         const topArtists = await artistsResponse.json();
         
-        // Cargar álbumes 2024
-        const albums2024Response = await fetch('/api/albums?year=2024&sort=releaseDate&limit=5');
+        // Cargar álbumes 2024 (aumentamos a 10)
+        const albums2024Response = await fetch('/api/albums?year=2024&sort=releaseDate&limit=10');
         const albums2024 = await albums2024Response.json();
 
-        // Cargar álbumes 2023
-        const albums2023Response = await fetch('/api/albums?year=2023&sort=releaseDate&limit=5');
+        // Cargar álbumes 2023 (aumentamos a 10)
+        const albums2023Response = await fetch('/api/albums?year=2023&sort=releaseDate&limit=10');
         const albums2023 = await albums2023Response.json();
         
-        // Cargar canciones trending
-        const songsResponse = await fetch('/api/songs?sort=popularity&limit=5');
+        // Cargar canciones trending (aumentamos a 10)
+        const songsResponse = await fetch('/api/songs?sort=popularity&limit=10');
         const topSongs = await songsResponse.json();
         
         displayTopArtists(topArtists);
@@ -107,23 +107,36 @@ function displayTopArtists(artists) {
     });
 }
 
+// Modificar displayTopSongs para incluir funcionalidad de Spotify y letras
 function displayTopSongs(songs) {
     const container = document.getElementById('top-songs');
     container.innerHTML = '';
 
     songs.forEach(song => {
         const card = document.createElement('div');
-        card.className = 'top-artist-card'; // Reutilizamos el estilo
+        card.className = 'song-card';
         card.innerHTML = `
-            <div class="top-artist-info">
-                <h3 class="top-artist-name">${song.title}</h3>
-                <p class="top-artist-followers">Duración: ${formatDuration(song.duration)}</p>
+            <div class="song-info">
+                <a href="${song.url}" target="_blank" class="top-song-title">
+                    ${song.title}
+                </a>
+                <p class="song-duration">Duración: ${formatDuration(song.duration)}</p>
                 ${song.lyrics ? 
-                    `<button class="view-lyrics" data-song-id="${song._id}">Ver letra</button>` : 
-                    ''
-                }
+                    `<button class="view-lyrics" data-lyrics="${encodeURIComponent(song.lyrics)}"
+                     data-title="${song.title}">Ver letra</button>` : 
+                    ''}
             </div>
         `;
+
+        // Event listener para el botón de letras
+        const lyricsBtn = card.querySelector('.view-lyrics');
+        if (lyricsBtn) {
+            lyricsBtn.addEventListener('click', () => {
+                const lyrics = decodeURIComponent(lyricsBtn.dataset.lyrics);
+                const title = lyricsBtn.dataset.title;
+                showLyrics(title, lyrics);
+            });
+        }
 
         container.appendChild(card);
     });
@@ -659,6 +672,7 @@ function displayArtistDetails({ artist, albums }) {
     });
 }
 
+// Actualizar función showLyrics para incluir link a Spotify
 function showLyrics(title, lyrics) {
     const modal = document.createElement('div');
     modal.className = 'lyrics-modal';
@@ -666,14 +680,21 @@ function showLyrics(title, lyrics) {
         <div class="lyrics-content">
             <h3>${title}</h3>
             <pre>${lyrics}</pre>
-            <button class="close-lyrics">Cerrar</button>
+            <div class="lyrics-actions">
+                <a href="https://open.spotify.com/search/${encodeURIComponent(title)}" 
+                   target="_blank" class="spotify-link">
+                    Escuchar en Spotify
+                </a>
+                <button class="close-lyrics">Cerrar</button>
+            </div>
         </div>
     `;
 
     document.body.appendChild(modal);
 
-    modal.querySelector('.close-lyrics').addEventListener('click', () => {
-        modal.remove();
+    modal.querySelector('.close-lyrics').addEventListener('click', () => modal.remove());
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
     });
 }
 
