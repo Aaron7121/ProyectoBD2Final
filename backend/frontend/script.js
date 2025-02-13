@@ -257,9 +257,24 @@ async function showArtistDetail(artistId) {
     }
 }
 
+// Modificar la función goBack existente
 function goBack() {
-    document.querySelector('main').style.display = 'block';
-    document.querySelector('.detail-page').classList.remove('active');
+    // Ocultar las páginas de detalle
+    document.querySelectorAll('.detail-page').forEach(page => {
+        page.classList.remove('active');
+    });
+
+    // Determinar la última sección activa o volver a inicio por defecto
+    let lastSection = localStorage.getItem('lastSection') || 'home';
+    
+    // Mostrar la sección principal
+    showSection(lastSection);
+
+    // Actualizar la navegación
+    const navLink = document.querySelector(`.nav-links a[data-section="${lastSection}"]`);
+    if (navLink) {
+        setActiveLink(navLink);
+    }
 }
 
 async function search(query, filter) {
@@ -303,11 +318,23 @@ function renderSearchResults(results) {
     });
 }
 
+// Modificar la función showSection para guardar la última sección visitada
 function showSection(sectionId) {
+    // Guardar la sección actual antes de cambiar
+    if (!sectionId.includes('detail')) {
+        localStorage.setItem('lastSection', sectionId);
+    }
+
+    // Ocultar todas las secciones
     document.querySelectorAll('section').forEach(section => {
         section.classList.remove('active');
     });
-    document.getElementById(sectionId).classList.add('active');
+
+    // Mostrar la sección seleccionada
+    const targetSection = document.getElementById(sectionId);
+    if (targetSection) {
+        targetSection.classList.add('active');
+    }
 }
 
 function setActiveLink(activeLink) {
@@ -605,7 +632,17 @@ async function loadDirectAlbumDetails(albumId) {
     }
 }
 
-// Nueva función para mostrar detalles del álbum
+async function loadArtistDetails(artistId) {
+    try {
+        const response = await fetch(`/api/artists/${artistId}`);
+        const data = await response.json();
+        displayArtistDetails(data);
+        showSection('artist-detail');
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
 function displayAlbumDetails({ album, songs }) {
     const container = document.getElementById('album-detail');
     container.innerHTML = `
@@ -655,17 +692,6 @@ function displayAlbumDetails({ album, songs }) {
             }
         });
     });
-}
-
-async function loadArtistDetails(artistId) {
-    try {
-        const response = await fetch(`/api/artists/${artistId}`);
-        const data = await response.json();
-        displayArtistDetails(data);
-        showSection('artist-detail');
-    } catch (error) {
-        console.error('Error:', error);
-    }
 }
 
 function displayArtistDetails({ artist, albums }) {
