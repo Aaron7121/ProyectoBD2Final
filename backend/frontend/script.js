@@ -500,29 +500,30 @@ function displaySearchResults(results, filter) {
     } else if (filter === 'albums') {
         results.forEach(album => {
             const albumCard = document.createElement('div');
-            albumCard.className = 'grid-item artist-card';
+            albumCard.className = 'grid-item album-card';
 
             albumCard.innerHTML = `
-                <a href="${album.spotifyUrl || '#'}" target="_blank" class="artist-image-link">
+                <div class="album-image-container" data-album-id="${album._id}">
                     <img src="${album.image}" alt="${album.name}" class="artist-image">
-                </a>
-                <div class="artist-info">
-                    <h3>
-                        <a href="#" class="album-name" data-album-id="${album._id}">
-                            ${album.name}
-                        </a>
-                    </h3>
+                </div>
+                <div class="album-info">
+                    <h3>${album.name}</h3>
+                    <p class="album-details">
+                        Lanzamiento: ${new Date(album.releaseDate).toLocaleDateString()}
+                    </p>
+                    <p class="album-tracks">
+                        ${album.totalTracks} canciones
+                    </p>
                 </div>
             `;
 
             container.appendChild(albumCard);
         });
 
-        // Agregar event listeners para los álbumes
-        document.querySelectorAll('.album-name').forEach(link => {
-            link.addEventListener('click', async (e) => {
-                e.preventDefault();
-                const albumId = e.target.dataset.albumId;
+        // Event listener para las imágenes de álbumes
+        document.querySelectorAll('.album-image-container').forEach(container => {
+            container.addEventListener('click', async (e) => {
+                const albumId = container.dataset.albumId;
                 await loadDirectAlbumDetails(albumId);
             });
         });
