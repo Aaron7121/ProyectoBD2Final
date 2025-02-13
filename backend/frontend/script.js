@@ -204,15 +204,19 @@ async function loadArtistasDestacados() {
 
 function renderArtistas(artists) {
     const container = document.getElementById('artists-container');
-    container.innerHTML = ''; // Limpiar contenido previo
+    container.innerHTML = '';
 
     artists.forEach(artist => {
         const card = `
-            <div class="artist-card" data-artist-id="${artist._id}">
-                <img src="${artist.image}" alt="${artist.name}">
-                <h3>${artist.name}</h3>
-                <p>${artist.followers} seguidores</p>
-                <button onclick="showArtistDetail('${artist._id}')">Ver detalle</button>
+            <div class="artist-card animated fadeIn" data-artist-id="${artist._id}">
+                <div class="artist-image-container">
+                    <img src="${artist.image}" alt="${artist.name}" class="artist-image">
+                </div>
+                <div class="artist-info">
+                    <h3>${artist.name}</h3>
+                    <p class="artist-followers">Seguidores: ${artist.followers.toLocaleString()}</p>
+                    <p class="artist-genres">Géneros: ${artist.genres.join(', ')}</p>
+                </div>
             </div>
         `;
         container.insertAdjacentHTML('beforeend', card);
@@ -348,11 +352,25 @@ async function loadArtists() {
     const response = await fetch('http://localhost:3000/api/artists');
     const artists = await response.json();
     renderData(artists, 'artists-container', (artist) => `
-        <h3>${artist.name}</h3>
-        <img src="${artist.image}" alt="${artist.name}">
-        <p>Seguidores: ${artist.followers}</p>
-        <p>Géneros: ${artist.genres.join(', ')}</p>
+        <div class="artist-card animated fadeIn" data-artist-id="${artist._id}">
+            <div class="artist-image-container">
+                <img src="${artist.image}" alt="${artist.name}" class="artist-image">
+            </div>
+            <div class="artist-info">
+                <h3>${artist.name}</h3>
+                <p class="artist-followers">Seguidores: ${artist.followers.toLocaleString()}</p>
+                <p class="artist-genres">Géneros: ${artist.genres.join(', ')}</p>
+            </div>
+        </div>
     `);
+
+    // Mantener solo el event listener para el click en la tarjeta
+    document.querySelectorAll('.artist-card').forEach(card => {
+        card.addEventListener('click', async (e) => {
+            const artistId = card.dataset.artistId;
+            await loadArtistDetails(artistId);
+        });
+    });
 }
 
 function renderData(data, containerId, template) {
@@ -383,9 +401,6 @@ async function loadAlbums() {
         <div class="album-card animated fadeIn" data-album-id="${album._id}">
             <div class="album-image-container">
                 <img src="${album.image}" alt="${album.name}" class="album-image">
-                <div class="album-overlay">
-                    <button class="view-details-btn">Ver canciones</button>
-                </div>
             </div>
             <div class="album-info">
                 <h3>${album.name}</h3>
@@ -395,16 +410,8 @@ async function loadAlbums() {
         </div>
     `);
 
-    // Agregar event listeners para las animaciones
+    // Mantener solo el event listener para el click en la tarjeta
     document.querySelectorAll('.album-card').forEach(card => {
-        card.addEventListener('mouseenter', () => {
-            card.querySelector('.album-overlay').style.opacity = '1';
-        });
-
-        card.addEventListener('mouseleave', () => {
-            card.querySelector('.album-overlay').style.opacity = '0';
-        });
-
         card.addEventListener('click', async (e) => {
             const albumId = card.dataset.albumId;
             await loadDirectAlbumDetails(albumId);
