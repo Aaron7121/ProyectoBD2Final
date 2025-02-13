@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     loadArtists(); // Cargar artistas al inicio
+    loadAlbums(); // Cargar álbumes al inicio
 });
 
 function handleNavClick(e) {
@@ -89,7 +90,7 @@ function renderArtistas(artists) {
 
     artists.forEach(artist => {
         const card = `
-            <div class="artist-card">
+            <div class="artist-card" data-artist-id="${artist._id}">
                 <img src="${artist.image}" alt="${artist.name}">
                 <h3>${artist.name}</h3>
                 <p>${artist.followers} seguidores</p>
@@ -97,6 +98,14 @@ function renderArtistas(artists) {
             </div>
         `;
         container.insertAdjacentHTML('beforeend', card);
+    });
+
+    // Agregar event listeners para los artistas
+    document.querySelectorAll('.artist-card').forEach(card => {
+        card.addEventListener('click', async (e) => {
+            const artistId = card.dataset.artistId;
+            await loadArtistDetails(artistId);
+        });
     });
 }
 
@@ -204,16 +213,28 @@ function renderData(data, containerId, template) {
         div.innerHTML = template(item);
         container.appendChild(div);
     });
+
+    // Agregar event listeners para los álbumes
+    if (containerId === 'albums-container') {
+        document.querySelectorAll('.album-card').forEach(card => {
+            card.addEventListener('click', async (e) => {
+                const albumId = card.dataset.albumId;
+                await loadDirectAlbumDetails(albumId);
+            });
+        });
+    }
 }
 
 async function loadAlbums() {
     const response = await fetch('http://localhost:3000/api/albums');
     const albums = await response.json();
     renderData(albums, 'albums-container', (album) => `
-        <h3>${album.name}</h3>
-        <img src="${album.image}" alt="${album.name}">
-        <p>Fecha de lanzamiento: ${new Date(album.releaseDate).toLocaleDateString()}</p>
-        <p>Canciones: ${album.totalTracks}</p>
+        <div class="album-card" data-album-id="${album._id}">
+            <img src="${album.image}" alt="${album.name}">
+            <h3>${album.name}</h3>
+            <p>Fecha de lanzamiento: ${new Date(album.releaseDate).toLocaleDateString()}</p>
+            <p>Canciones: ${album.totalTracks}</p>
+        </div>
     `);
 }
 
@@ -439,7 +460,7 @@ async function loadDirectAlbumDetails(albumId) {
 function displayAlbumDetails({ album, songs }) {
     const container = document.getElementById('album-detail');
     container.innerHTML = `
-        <button class="back-button" onclick="history.back()">← Volver</button>
+        <button class="back-button" onclick="goBack()">← Volver</button>
         <div class="album-header">
             <div class="album-info">
                 <img src="${album.image}" alt="${album.name}" class="album-cover">
@@ -501,7 +522,7 @@ async function loadArtistDetails(artistId) {
 function displayArtistDetails({ artist, albums }) {
     const container = document.getElementById('artist-detail');
     container.innerHTML = `
-        <button class="back-button" onclick="history.back()">← Volver</button>
+        <button class="back-button" onclick="goBack()">← Volver</button>
         <div class="albums-grid">
             ${albums.map(album => `
                 <div class="album-card">
