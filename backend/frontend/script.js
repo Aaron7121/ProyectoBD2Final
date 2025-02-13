@@ -183,9 +183,9 @@ function loadSectionContent(sectionId) {
         case 'albums':
             loadAlbumesPopulares();
             break;
-        case 'songs':
-            loadCancionesTrending();
-            break;
+       // case 'songs':
+          //  loadCancionesTrending();
+          //  break;
         case 'about':
             // No necesita carga dinámica
             break;
@@ -353,16 +353,39 @@ async function loadAlbums() {
     const response = await fetch('http://localhost:3000/api/albums');
     const albums = await response.json();
     renderData(albums, 'albums-container', (album) => `
-        <div class="album-card" data-album-id="${album._id}">
-            <img src="${album.image}" alt="${album.name}">
-            <h3>${album.name}</h3>
-            <p>Fecha de lanzamiento: ${new Date(album.releaseDate).toLocaleDateString()}</p>
-            <p>Canciones: ${album.totalTracks}</p>
+        <div class="album-card animated fadeIn" data-album-id="${album._id}">
+            <div class="album-image-container">
+                <img src="${album.image}" alt="${album.name}" class="album-image">
+                <div class="album-overlay">
+                    <button class="view-details-btn">Ver canciones</button>
+                </div>
+            </div>
+            <div class="album-info">
+                <h3>${album.name}</h3>
+                <p class="album-release">Lanzamiento: ${new Date(album.releaseDate).toLocaleDateString()}</p>
+                <p class="album-tracks">${album.totalTracks} canciones</p>
+            </div>
         </div>
     `);
+
+    // Agregar event listeners para las animaciones
+    document.querySelectorAll('.album-card').forEach(card => {
+        card.addEventListener('mouseenter', () => {
+            card.querySelector('.album-overlay').style.opacity = '1';
+        });
+
+        card.addEventListener('mouseleave', () => {
+            card.querySelector('.album-overlay').style.opacity = '0';
+        });
+
+        card.addEventListener('click', async (e) => {
+            const albumId = card.dataset.albumId;
+            await loadDirectAlbumDetails(albumId);
+        });
+    });
 }
 
-async function loadSongs() {
+/*async function loadSongs() {
     const response = await fetch('http://localhost:3000/api/songs');
     const songs = await response.json();
     renderData(songs, 'songs-container', (song) => `
@@ -371,7 +394,7 @@ async function loadSongs() {
         <p>Álbum: ${song.album}</p>
     `);
 }
-
+*/
 document.querySelectorAll('.nav-links a').forEach(link => {
     link.addEventListener('click', (e) => {
         e.preventDefault();
@@ -381,7 +404,7 @@ document.querySelectorAll('.nav-links a').forEach(link => {
 
         if (sectionId === 'artists') loadArtists();
         if (sectionId === 'albums') loadAlbums();
-        if (sectionId === 'songs') loadSongs();
+       // if (sectionId === 'songs') loadSongs();
     });
 });
 
