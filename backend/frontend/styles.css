@@ -552,3 +552,125 @@ section.active {
 .lyrics-content[style*="display: block"] {
     animation: slideDown 0.3s ease-out;
 }
+
+/* Estilos para la sección de inicio */
+.highlights {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    padding: 2rem;
+}
+
+.popular-artists, .popular-songs {
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.scroll-container {
+    display: flex;
+    overflow-x: auto;
+    gap: 1.5rem;
+    padding: 1rem 0;
+    scroll-behavior: smooth;
+}
+
+.scroll-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+    background: #282828;
+    border-radius: 4px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+    background: #1db954;
+    border-radius: 4px;
+}
+
+.top-artist-card {
+    min-width: 200px;
+    background: #282828;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.top-artist-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+}
+
+.top-artist-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.top-artist-card:hover .top-artist-image {
+    transform: scale(1.05);
+}
+
+.top-artist-info {
+    padding: 1rem;
+}
+
+.top-artist-name {
+    color: #fff;
+    font-size: 1.1rem;
+    margin: 0;
+    text-decoration: none;
+}
+
+.top-artist-followers {
+    color: #b3b3b3;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+/* Animación de entrada */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.top-artist-card {
+    animation: slideIn 0.5s ease backwards;
+}
+
+.top-artist-card:nth-child(1) { animation-delay: 0.1s; }
+.top-artist-card:nth-child(2) { animation-delay: 0.2s; }
+.top-artist-card:nth-child(3) { animation-delay: 0.3s; }
+.top-artist-card:nth-child(4) { animation-delay: 0.4s; }
+.top-artist-card:nth-child(5) { animation-delay: 0.5s; }
+
+/* Actualizar estilos para la sección de inicio */
+.highlights-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem;
+}
+
+.highlights-section {
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.highlights-section h3 {
+    margin-bottom: 1rem;
+    color: #1db954;
+    font-size: 1.5rem;
+}

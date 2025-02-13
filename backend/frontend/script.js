@@ -22,7 +22,112 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadArtists(); // Cargar artistas al inicio
     loadAlbums(); // Cargar álbumes al inicio
+    loadTopContent(); // Cargar contenido de inicio
 });
+
+// Modificar la función loadTopContent
+async function loadTopContent() {
+    try {
+        // Cargar artistas top
+        const artistsResponse = await fetch('/api/artists?sort=popularity&limit=5');
+        const topArtists = await artistsResponse.json();
+        
+        // Cargar álbumes 2024
+        const albums2024Response = await fetch('/api/albums?year=2024&sort=releaseDate&limit=5');
+        const albums2024 = await albums2024Response.json();
+
+        // Cargar álbumes 2023
+        const albums2023Response = await fetch('/api/albums?year=2023&sort=releaseDate&limit=5');
+        const albums2023 = await albums2023Response.json();
+        
+        // Cargar canciones trending
+        const songsResponse = await fetch('/api/songs?sort=popularity&limit=5');
+        const topSongs = await songsResponse.json();
+        
+        displayTopArtists(topArtists);
+        displayTopAlbums(albums2024, '2024');
+        displayTopAlbums(albums2023, '2023');
+        displayTopSongs(topSongs);
+    } catch (error) {
+        console.error('Error cargando contenido top:', error);
+    }
+}
+
+// Añadir función para mostrar álbumes
+function displayTopAlbums(albums, year) {
+    const container = document.getElementById(`top-albums-${year}`);
+    container.innerHTML = '';
+
+    albums.forEach(album => {
+        const card = document.createElement('div');
+        card.className = 'top-artist-card';
+        card.innerHTML = `
+            <div class="album-card" data-album-id="${album._id}">
+                <img src="${album.image}" alt="${album.name}" class="top-artist-image">
+                <div class="top-artist-info">
+                    <h3 class="top-artist-name">${album.name}</h3>
+                    <p class="top-artist-followers">
+                        ${new Date(album.releaseDate).toLocaleDateString()}
+                    </p>
+                </div>
+            </div>
+        `;
+
+        // Añadir event listener para ver detalles del álbum
+        card.addEventListener('click', () => loadDirectAlbumDetails(album._id));
+        container.appendChild(card);
+    });
+}
+
+function displayTopArtists(artists) {
+    const container = document.getElementById('top-artists');
+    container.innerHTML = '';
+
+    artists.forEach(artist => {
+        const card = document.createElement('div');
+        card.className = 'top-artist-card';
+        card.innerHTML = `
+            <a href="${artist.url}" target="_blank" class="artist-image-link">
+                <img src="${artist.image}" alt="${artist.name}" class="top-artist-image">
+            </a>
+            <div class="top-artist-info">
+                <a href="#" class="top-artist-name" data-artist-id="${artist._id}">${artist.name}</a>
+                <p class="top-artist-followers">${artist.followers.toLocaleString()} seguidores</p>
+            </div>
+        `;
+
+        container.appendChild(card);
+
+        // Event listener para el nombre del artista
+        card.querySelector('.top-artist-name').addEventListener('click', async (e) => {
+            e.preventDefault();
+            const artistId = e.target.dataset.artistId;
+            await loadArtistDetails(artistId);
+        });
+    });
+}
+
+function displayTopSongs(songs) {
+    const container = document.getElementById('top-songs');
+    container.innerHTML = '';
+
+    songs.forEach(song => {
+        const card = document.createElement('div');
+        card.className = 'top-artist-card'; // Reutilizamos el estilo
+        card.innerHTML = `
+            <div class="top-artist-info">
+                <h3 class="top-artist-name">${song.title}</h3>
+                <p class="top-artist-followers">Duración: ${formatDuration(song.duration)}</p>
+                ${song.lyrics ? 
+                    `<button class="view-lyrics" data-song-id="${song._id}">Ver letra</button>` : 
+                    ''
+                }
+            </div>
+        `;
+
+        container.appendChild(card);
+    });
+}
 
 function handleNavClick(e) {
     e.preventDefault();

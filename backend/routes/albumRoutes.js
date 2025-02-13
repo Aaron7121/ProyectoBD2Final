@@ -4,8 +4,31 @@ const { MongoClient, ObjectId } = require('mongodb');
 
 router.get('/', async (req, res) => {
     try {
+        const { year, sort, limit } = req.query;
         const db = req.app.locals.db;
-        const albums = await db.collection('albums').find().limit(10).toArray();
+        
+        let query = {};
+        if (year) {
+            // Crear rango de fechas para el año especificado
+            const startDate = new Date(`${year}-01-01`);
+            const endDate = new Date(`${year}-12-31`);
+            query.releaseDate = {
+                $gte: startDate,
+                $lte: endDate
+            };
+        }
+
+        let sortOptions = {};
+        if (sort === 'releaseDate') {
+            sortOptions.releaseDate = -1;
+        }
+
+        const albums = await db.collection('albums')
+            .find(query)
+            .sort(sortOptions)
+            .limit(parseInt(limit) || 10)
+            .toArray();
+
         res.json(albums);
     } catch (err) {
         res.status(500).json({ message: err.message });
