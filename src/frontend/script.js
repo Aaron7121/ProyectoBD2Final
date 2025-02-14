@@ -360,28 +360,37 @@ function setActiveLink(activeLink) {
 }
 
 async function loadArtists() {
-    const response = await fetch('http://localhost:3000/api/artists');
-    const artists = await response.json();
-    renderData(artists, 'artists-container', (artist) => `
-        <div class="artist-card animated fadeIn" data-artist-id="${artist._id}">
-            <div class="artist-image-container">
-                <img src="${artist.image}" alt="${artist.name}" class="artist-image">
-            </div>
-            <div class="artist-info">
-                <h3>${artist.name}</h3>
-                <p class="artist-followers">Seguidores: ${artist.followers.toLocaleString()}</p>
-                <p class="artist-genres">Géneros: ${artist.genres.join(', ')}</p>
-            </div>
-        </div>
-    `);
+    try {
+        const response = await fetch('http://localhost:3000/api/artists?sort=popularity&limit=18');
+        const artists = await response.json();
+        
+        const container = document.getElementById('artists-container');
+        container.innerHTML = ''; // Limpiar el contenedor antes de agregar nuevos artistas
 
-    // Mantener solo el event listener para el click en la tarjeta
-    document.querySelectorAll('.artist-card').forEach(card => {
-        card.addEventListener('click', async (e) => {
-            const artistId = card.dataset.artistId;
-            await loadArtistDetails(artistId);
+        artists.forEach(artist => {
+            const artistCard = document.createElement('div');
+            artistCard.className = 'artist-card animated fadeIn';
+            artistCard.dataset.artistId = artist._id;
+            artistCard.innerHTML = `
+                <div class="artist-image-container">
+                    <img src="${artist.image}" alt="${artist.name}" class="artist-image">
+                </div>
+                <div class="artist-info">
+                    <h3>${artist.name}</h3>
+                    <p class="artist-followers">Seguidores: ${artist.followers.toLocaleString()}</p>
+                    <p class="artist-genres">Géneros: ${artist.genres.join(', ')}</p>
+                </div>
+            `;
+
+            artistCard.addEventListener('click', async () => {
+                await loadArtistDetails(artist._id);
+            });
+
+            container.appendChild(artistCard);
         });
-    });
+    } catch (error) {
+        console.error('Error cargando artistas:', error);
+    }
 }
 
 function renderData(data, containerId, template) {
