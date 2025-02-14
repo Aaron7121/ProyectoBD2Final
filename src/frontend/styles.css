@@ -901,6 +901,32 @@ section.active {
     border-left: 4px solid #3498db;
 }
 
+/* Estilos para el botón de añadir artista */
+.no-results button {
+    margin-top: 1rem;
+    padding: 0.8rem 1.5rem;
+    background: #1db954;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(29, 185, 84, 0.3);
+}
+
+.no-results button:hover {
+    background: #1ed760;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(29, 185, 84, 0.4);
+}
+
+.no-results button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(29, 185, 84, 0.3);
+}
+
 .search-error {
     text-align: center;
     padding: 2rem;
