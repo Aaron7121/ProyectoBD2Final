@@ -1,8 +1,8 @@
 const axios = require('axios');
 require('dotenv').config();
 
-const SPOTIFY_CLIENT_ID = "fb85aaf164224f93a71928d5aa3b34ae";
-const SPOTIFY_CLIENT_SECRET = "ac4f767fe95043629afc1fb16dfc8a37";
+const SPOTIFY_CLIENT_ID = "bfa2861d23ac4a5aabff8e732d139303";
+const SPOTIFY_CLIENT_SECRET = "5f034ad9a13d4e789767a2d2123c6952";
 
 if (!SPOTIFY_CLIENT_ID || !SPOTIFY_CLIENT_SECRET) {
   console.error('Las credenciales de Spotify no están configuradas correctamente en el archivo .env');
