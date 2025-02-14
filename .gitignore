@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE - VSCode
+.vscode/
+*.code-workspace
+.history/
+
+# IDE - WebStorm/IntelliJ
+.idea/
+*.iml
+
+# Logs
+logs/
+*.log
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos de construcción
+/dist
+/build
+/out
+
+# Archivos de cobertura
+coverage/
+
+# Archivos temporales
+*.tmp
+*.temp
+.cache/
+
+# Archivos de debug
+debug/
+.debug/
+
+# Archivos de configuración local
+config.local.js
