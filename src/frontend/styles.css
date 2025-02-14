@@ -890,3 +890,12 @@ section.active {
 .about-content p {
     color: #b3b3b3;
 }
+
+a:link, a:visited {
+    color: white;
+    text-decoration: none;    
+}
+
+a:hover {
+    color: #1db954;
+}
